@@ -7,6 +7,7 @@ import { AccentCard } from '../components/Practice/AccentCard';
 import { ScenarioCard } from '../components/Practice/ScenarioCard';
 import { FeedbackModal } from '../components/Dashboard/FeedbackModal';
 import { ProgressStats } from '../components/Dashboard/ProgressStats';
+import { VocabularyBank } from '../components/Dashboard/VocabularyBank';
 import { SCENARIOS } from '../constants/scenarios';
 import { BADGES } from '../constants/badges';
 
@@ -152,8 +153,10 @@ export const Dashboard: React.FC = () => {
             </div>
           )}
         </div>
+        
+        <VocabularyBank />
       </div>
-      
+
       <FeedbackModal 
         isOpen={!!selectedSession}
         onClose={() => setSelectedSession(null)}

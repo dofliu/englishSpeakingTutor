@@ -172,7 +172,7 @@ export const Practice: React.FC = () => {
           )}
         </div>
 
-        <TranscriptViewer transcriptEndRef={transcriptEndRef} />
+        <TranscriptViewer scrollRef={transcriptEndRef} />
         <AudioVisualizer isPracticing={isPracticing} />
       </div>
       
