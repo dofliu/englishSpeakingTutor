@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "users": {
+      "title": "User Profile",
+      "description": "Stores user preferences and overall progress.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "preferredAccent": { "type": "string", "enum": ["US", "UK", "AU", "IN"] },
+        "totalSessions": { "type": "number" },
+        "lastActive": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "sessions": {
+      "title": "Learning Session",
+      "description": "Records of individual practice sessions.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "accent": { "type": "string" },
+        "topic": { "type": "string" },
+        "duration": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "feedback": { "type": "string" }
+      },
+      "required": ["userId", "accent", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "User profile document"
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": "sessions",
+      "description": "User's practice sessions"
+    }
+  }
+}
