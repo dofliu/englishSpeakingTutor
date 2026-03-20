@@ -1,8 +1,9 @@
 import { GoogleGenAI, Modality, LiveServerMessage } from "@google/genai";
+import { Scenario } from '../constants/scenarios';
 
 export interface LiveSessionConfig {
   accent: string;
-  topic: string;
+  scenario: Scenario;
 }
 
 export class GeminiLiveService {
@@ -22,8 +23,11 @@ export class GeminiLiveService {
   async connect(config: LiveSessionConfig, onMessage: (text: string) => void, onInterrupted: () => void) {
     const systemInstruction = `You are a helpful English tutor. 
     Your current accent is ${config.accent}. 
-    The topic of conversation is ${config.topic}. 
-    Engage the user in a natural conversation to help them practice listening and speaking. 
+    The topic of conversation is ${config.scenario.title} (${config.scenario.level} level). 
+    The student's goals for this session are:
+    ${config.scenario.goals.map(g => `- ${g}`).join('\n')}
+    
+    Engage the user in a natural conversation to help them achieve these goals and practice listening and speaking. 
     Provide gentle corrections if they make mistakes, but keep the flow natural. 
     Speak clearly in your assigned accent.`;
 
