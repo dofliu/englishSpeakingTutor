@@ -16,9 +16,18 @@ export interface FeedbackReport {
 
 export async function generateSessionFeedback(transcript: TranscriptItem[], accent: string, scenario: Scenario): Promise<FeedbackReport | null> {
   const userMessages = transcript.filter(t => t.isUser).map(t => t.text);
+  const aiMessages = transcript.filter(t => !t.isUser).map(t => t.text);
   
   if (userMessages.length === 0) {
-    return null; // No user input to grade
+    if (aiMessages.length === 0) return null;
+    
+    // Fallback if no user audio was captured but session happened
+    return {
+      score: 0,
+      grammar_issues: [],
+      vocabulary_suggestions: [],
+      overall_comments: "No user speech was detected during this session. Please check your microphone permissions or try speaking louder. We could not hear you. Ensure your microphone is working and try again."
+    };
   }
 
   const apiKey = (import.meta as any).env?.GEMINI_API_KEY || (process as any).env?.GEMINI_API_KEY;

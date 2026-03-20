@@ -22,6 +22,7 @@ export const Practice: React.FC = () => {
   const scenario = SCENARIOS.find(s => s.id === selectedScenarioId) || SCENARIOS[0];
   
   const liveService = useRef<GeminiLiveService | null>(null);
+  const recognitionRef = useRef<any>(null);
   const transcriptCounter = useRef(0);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,41 @@ export const Practice: React.FC = () => {
     setIsPracticing(true);
     setSessionStartTime(Date.now());
     
+    // Setup Speech Recognition for User Transcripts
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      if (!recognitionRef.current) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-US';
+        
+        recognitionRef.current.onresult = (event: any) => {
+          const result = event.results[event.results.length - 1];
+          if (result.isFinal) {
+            const text = result[0].transcript.trim();
+            if (text) {
+              addTranscriptItem({ text, isUser: true });
+            }
+          }
+        };
+
+        recognitionRef.current.onerror = (event: any) => {
+          console.warn("Speech recognition error:", event.error);
+        };
+        
+        recognitionRef.current.onend = () => {
+          // Auto-restart if still practicing
+          if (useAppStore.getState().isPracticing && recognitionRef.current) {
+            try { recognitionRef.current.start(); } catch (e) {}
+          }
+        };
+      }
+      try { recognitionRef.current.start(); } catch (e) {
+        console.warn("Failed to start speech recognition", e);
+      }
+    }
+
     try {
       await liveService.current.connect(
         { accent: selectedAccent, scenario },
@@ -60,6 +96,10 @@ export const Practice: React.FC = () => {
   const stopPractice = async () => {
     if (liveService.current) {
       liveService.current.disconnect();
+    }
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      try { recognitionRef.current.stop(); } catch(e) {}
     }
     setIsPracticing(false);
     
